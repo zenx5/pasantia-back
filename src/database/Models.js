@@ -103,11 +103,8 @@ Proyect.belongsTo(User)
 Proyect.belongsToMany(Module,{ through: 'Proyect_Modules' })
 Module.belongsToMany(Proyect,{ through: 'Proyect_Modules' })
 
-
-
 Proyect.hasMany(Entity)
 Entity.belongsTo(Proyect)
-
 
 export {
     User, 
