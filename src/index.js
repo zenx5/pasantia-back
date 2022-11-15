@@ -18,6 +18,7 @@ import {
     destroy
  } from './methods.js';
 import { generateData } from './database/mockup.js';
+import { Op } from 'sequelize';
 
 const app = express();
 const router = express.Router();
@@ -72,6 +73,38 @@ router.put('/modules/:id', await update(Module))
 router.delete('/modules/:id', await destroy(Module))
 
 router.get('/entities', await getAll(Entity, { include:Proyect }))
+router.post('/entities/byIds', async (req, res) => {
+    try{
+        const option = {
+            where: {
+                [Op.or]: req.body?.list?.map( id => ({ id }))
+            }, 
+            include: [Proyect, Feature]
+        }
+        const result = await Entity.findAll(option)
+        if( result.length > 0 ){
+            res.json({message:`Select Record id=${req.body.list.join(',')}`, data:result, error: false})
+        }else{
+            res.json({message:`Not Record Selected`, data:[], error: true})
+        }
+    }catch(error){
+        res.json({message:`Not Record Selected`, data:[], error: true})
+    }
+})
+router.get('/entities/byProyect/:id', async (req, res) => {
+    const option = {
+        where: {
+            ProyectId: req.params.id
+        }, 
+        include: [Proyect, Feature]
+    }
+    const result = await Entity.findAll(option)
+    if( result.length > 0 ){
+        res.json({message:`Select Record id=${req.params.id}`, data:result, error: false})
+    }else{
+        res.json({message:`Not Record Selected`, data:[], error: true})
+    }
+})
 router.get('/entities/:id', await getUnique(Entity, { include:Proyect }))
 router.post('/entities', await create(Entity))
 router.put('/entities/:id', await update(Entity))

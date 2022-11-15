@@ -106,6 +106,9 @@ Module.belongsToMany(Proyect,{ through: 'Proyect_Modules' })
 Proyect.hasMany(Entity)
 Entity.belongsTo(Proyect)
 
+Entity.hasMany(Feature)
+Feature.belongsTo(Entity)
+
 export {
     User, 
     Proyect,
