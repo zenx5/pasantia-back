@@ -54,7 +54,7 @@ router.post('/login', async (req, res) => {
 })
 
 
-router.get('/users', await getAll(User, {include: Proyect}))
+router.get('/users', await getAll(User, { include: Proyect  }))
 router.get('/users/:id', await getUnique(User, {include: Proyect}))
 router.post('/users', await create(User))
 router.put('/users/:id', await update(User))

@@ -83,7 +83,7 @@ export const generateData = async () => {
         if( type==='actor') mixFiltered = mix.filter( element => element.name === 'MACTOR')
         
         const record = Entity.build( {
-            name:`Entity ${index}`,
+            name:`Entity ${type} ${index}`,
             description: `This is an entity of type ${type}`,
             type: type,
             ProyectId: mixFiltered[Math.floor(Math.random()*mixFiltered.length)].id
@@ -114,6 +114,18 @@ export const generateData = async () => {
                 break;
             case 'actor':
                 const entityVariable = entities.filter( e => e.type==='variable')
+                record = Feature.build({
+                    name: 'influence',
+                    value: Math.random()*11,
+                    EntityId: entity.id
+                }),
+                features.push( await record.save() )
+                record = Feature.build({
+                    name: 'dependence',
+                    value: Math.random()*11,
+                    EntityId: entity.id
+                })
+                features.push( await record.save() )
                 record = Feature.build({
                     name: 'variable',
                     value: entityVariable[Math.floor( Math.random()*entityVariable.length )].id,
