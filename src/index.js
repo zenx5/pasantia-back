@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv' 
+dotenv.config()
 import express from 'express'
 import morgan from 'morgan';
 import cors from 'cors'
@@ -6,9 +8,7 @@ import { database } from './database/database.js';
 import { 
     User, 
     Proyect,
-    Module,
-    Entity, 
-    Feature
+    Entity
 } from './database/Models.js';
 import { 
     getAll,
@@ -60,61 +60,49 @@ router.post('/users', await create(User))
 router.put('/users/:id', await update(User))
 router.delete('/users/:id', await destroy(User))
 
-router.get('/proyects', await getAll(Proyect, {include: [User, Module, Entity]}))
-router.get('/proyects/:id', await getUnique(Proyect, {include: [User, Module, Entity]}))
+router.get('/proyects', await getAll(Proyect, {include: Entity }))
+router.get('/proyects/:id', await getUnique(Proyect, {include: Entity }))
 router.post('/proyects', await create(Proyect))
 router.put('/proyects/:id', await update(Proyect))
 router.delete('/proyects/:id', await destroy(Proyect))
 
-router.get('/modules', await getAll(Module, {include: [Proyect]}))
-router.get('/modules/:id', await getUnique(Module, {include: [Proyect]}))
-router.post('/modules', await create(Module))
-router.put('/modules/:id', await update(Module))
-router.delete('/modules/:id', await destroy(Module))
-
 router.get('/entities', await getAll(Entity, { include:Proyect }))
-router.post('/entities/byIds', async (req, res) => {
-    try{
-        const option = {
-            where: {
-                [Op.or]: req.body?.list?.map( id => ({ id }))
-            }, 
-            include: [Proyect, Feature]
-        }
-        const result = await Entity.findAll(option)
-        if( result.length > 0 ){
-            res.json({message:`Select Record id=${req.body.list.join(',')}`, data:result, error: false})
-        }else{
-            res.json({message:`Not Record Selected`, data:[], error: true})
-        }
-    }catch(error){
-        res.json({message:`Not Record Selected`, data:[], error: true})
-    }
-})
-router.get('/entities/byProyect/:id', async (req, res) => {
-    const option = {
-        where: {
-            ProyectId: req.params.id
-        }, 
-        include: [Proyect, Feature]
-    }
-    const result = await Entity.findAll(option)
-    if( result.length > 0 ){
-        res.json({message:`Select Record id=${req.params.id}`, data:result, error: false})
-    }else{
-        res.json({message:`Not Record Selected`, data:[], error: true})
-    }
-})
+// router.post('/entities/byIds', async (req, res) => {
+//     try{
+//         const option = {
+//             where: {
+//                 [Op.or]: req.body?.list?.map( id => ({ id }))
+//             }, 
+//             include: [Proyect, Feature]
+//         }
+//         const result = await Entity.findAll(option)
+//         if( result.length > 0 ){
+//             res.json({message:`Select Record id=${req.body.list.join(',')}`, data:result, error: false})
+//         }else{
+//             res.json({message:`Not Record Selected`, data:[], error: true})
+//         }
+//     }catch(error){
+//         res.json({message:`Not Record Selected`, data:[], error: true})
+//     }
+// })
+// router.get('/entities/byProyect/:id', async (req, res) => {
+//     const option = {
+//         where: {
+//             ProyectId: req.params.id
+//         }, 
+//         include: [Proyect, Feature]
+//     }
+//     const result = await Entity.findAll(option)
+//     if( result.length > 0 ){
+//         res.json({message:`Select Record id=${req.params.id}`, data:result, error: false})
+//     }else{
+//         res.json({message:`Not Record Selected`, data:[], error: true})
+//     }
+// })
 router.get('/entities/:id', await getUnique(Entity, { include:Proyect }))
 router.post('/entities', await create(Entity))
 router.put('/entities/:id', await update(Entity))
 router.delete('/entities/:id', await destroy(Entity))
-
-router.get('/features', await getAll(Feature))
-router.get('/features/:id', await getUnique(Feature ))
-router.post('/features', await create(Feature))
-router.put('/features/:id', await update(Feature))
-router.delete('/features/:id', await destroy(Feature))
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -122,7 +110,7 @@ app.use( morgan('dev') );
 app.use( cors() )
 app.use( router )
 
-app.listen(5000, ()=>console.log('init'))
+app.listen(process.env.PORT, ()=>console.log(`init in port ${process.env.PORT}`))
 
 
 

@@ -44,15 +44,7 @@ const Proyect = database.define('Proyects', {
       type: DataTypes.STRING,
       allowNull: false
     },
-},{})
-
-const Module = database.define('Modules', {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    name: {
+    module: {
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -68,51 +60,35 @@ const Entity = database.define('Entities', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  description: {
-      type: DataTypes.STRING,
-      allowNull: false
-  },    
+  dependence: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  influence: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   type: {
-      type: DataTypes.STRING,
-      allowNull: false
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  belongsTo: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   },
 },{})
 
-
-const Feature = database.define('Features', {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    value: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },    
-},{})
 
 
 //associations
 User.hasMany(Proyect)
 Proyect.belongsTo(User)
 
-Proyect.belongsToMany(Module,{ through: 'Proyect_Modules' })
-Module.belongsToMany(Proyect,{ through: 'Proyect_Modules' })
-
 Proyect.hasMany(Entity)
 Entity.belongsTo(Proyect)
-
-Entity.hasMany(Feature)
-Feature.belongsTo(Entity)
 
 export {
     User, 
     Proyect,
-    Module,
-    Entity, 
-    Feature
+    Entity
 }
