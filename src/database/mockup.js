@@ -57,25 +57,25 @@ export const generateData = async () => {
         let eventos = 0
         let politicas = 0
         if( proyects[index].module.includes('MULTIPOL') ){
-            politicas = 10
-            eventos = 9
+            politicas = 9
+            eventos = 8
             hipotesis = 8
-            actores = 5
-            variables = 3
+            actores = 4
+            variables = 5
         }else if( proyects[index].module.includes('SMIC-PRO EXPERT') ){
-            eventos = 9
+            eventos = 8
             hipotesis = 8
-            actores = 5
-            variables = 3
+            actores = 4
+            variables = 5
         }else if( proyects[index].module.includes('MORPHOL') ){
-            hipotesis = 9
-            actores = 7
-            variables = 4
+            hipotesis = 8
+            actores = 4
+            variables = 5
         }else if( proyects[index].module.includes('MACTOR') ){
-            actores = 8
+            actores = 4
             variables = 5
         }else{
-            variables = 10
+            variables = 5
         }
         let numberEntities = politicas + eventos + hipotesis + actores + variables
 
@@ -114,7 +114,8 @@ export const generateData = async () => {
                 dependence: Math.random()*10,
                 influence: Math.random()*10,
                 type: type,
-                belongsTo: getRandomElement( lastEntities2 )
+                belongsTo: getRandomElement( lastEntities2 ),
+                ProyectId: proyects[index].id
             } )
             const newEntity = await record.save()
             lastEntities1.push( newEntity.id )
