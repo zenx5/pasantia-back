@@ -1,9 +1,7 @@
 import { 
     User, 
     Proyect, 
-    Module, 
     Entity,
-    Feature 
 } from './Models.js';
 
 export const generateData = async () => {
@@ -36,112 +34,120 @@ export const generateData = async () => {
     
 
     /*PROYECTS*/
-    const numberProyects = Math.floor(Math.random()*10)+10
     let proyects = []
-    for(let index = 0; index < numberProyects; index++ ){
-    //proyects = proyects.map( async (proyect, index) => {
-        const id = getRandomElement(users).id
-        const record = Proyect.build( {
-            name:`Proyect${id} ${index}`,
-            UserId: id
-        } )
-         proyects.push( await record.save() )
-    //})
-    }
     
-    /*MODULES*/
-    let modules = []
-    for(let index = 0; index < 5; index++ ){
-        const record = Module.build( {
-            name:['MIMAC', 'MACTOR', 'SMIC-PRO EXPERT', 'MORPHOL', 'MULTIPOL'][index]
-        } )
-        modules.push( await record.save() )    
-    }
-
-    let mix = []
-    modules.forEach( module => {
-        let currentProyect = getRandomElement(proyects)
-        module.addProyect( currentProyect )
-        mix.push({
-            name: module.name,
-            id: currentProyect.id
-        })
-    })
-
-    
-
-    /*Entities*/
-    const typeEntity = ['variable', 'actor']
-    const numberEntities = Math.floor(Math.random()*50)+20
-    let entities = []
-    for(let index = 0; index < numberEntities; index++ ){
-        const type = typeEntity[ Math.floor(Math.random()*typeEntity.length)]
-        
-        let mixFiltered = [{id:-1}]
-        
-        if( type==='variable') mixFiltered = mix.filter( element => element.name === 'MIMAC')
-        if( type==='actor') mixFiltered = mix.filter( element => element.name === 'MACTOR')
-        
-        const record = Entity.build( {
-            name:`Entity ${type} ${index}`,
-            description: `This is an entity of type ${type}`,
-            type: type,
-            ProyectId: mixFiltered[Math.floor(Math.random()*mixFiltered.length)].id
-        } )
-        entities.push( await record.save() )
-    }
-
-    /*Features*/
-    let features = []
-    //entities.forEach( async entity => {
-    for(let index = 0; index < entities.length; index++){
-        let entity = entities[index]
-        let record = null
-        switch(entity.type) {
-            case 'variable':
-                record = Feature.build({
-                    name: 'influence',
-                    value: Math.random()*11,
-                    EntityId: entity.id
-                }),
-                features.push( await record.save() )
-                record = Feature.build({
-                    name: 'dependence',
-                    value: Math.random()*11,
-                    EntityId: entity.id
-                })
-                features.push( await record.save() )
-                break;
-            case 'actor':
-                const entityVariable = entities.filter( e => e.type==='variable')
-                record = Feature.build({
-                    name: 'influence',
-                    value: Math.random()*11,
-                    EntityId: entity.id
-                }),
-                features.push( await record.save() )
-                record = Feature.build({
-                    name: 'dependence',
-                    value: Math.random()*11,
-                    EntityId: entity.id
-                })
-                features.push( await record.save() )
-                record = Feature.build({
-                    name: 'variable',
-                    value: entityVariable[Math.floor( Math.random()*entityVariable.length )].id,
-                    EntityId: entity.id
-                })
-                features.push( await record.save() )
-                break;
+    for(let index = 0; index < users.length; index++ ){
+        const numberProyects = Math.floor(Math.random()*5)+2
+        for(let jndex = 0; jndex < numberProyects; jndex++ ){
+            const record = Proyect.build( {
+                name:`Proyect ${index}-${jndex}`,
+                UserId: users[index].id,
+                module: getModules().join(',')
+            } )
+            proyects.push( await record.save() )
         }
     }
 
-    return { proyects, users, modules, entities, features }
+    /*ENTITIES*/
+    let entities = []
+    for(let index = 0; index < proyects.length; index++ ){
+        let variables = 0
+        let actores = 0
+        let hipotesis = 0
+        let eventos = 0
+        let politicas = 0
+        if( proyects[index].module.includes('MULTIPOL') ){
+            politicas = 9
+            eventos = 8
+            hipotesis = 8
+            actores = 4
+            variables = 5
+        }else if( proyects[index].module.includes('SMIC-PRO EXPERT') ){
+            eventos = 8
+            hipotesis = 8
+            actores = 4
+            variables = 5
+        }else if( proyects[index].module.includes('MORPHOL') ){
+            hipotesis = 8
+            actores = 4
+            variables = 5
+        }else if( proyects[index].module.includes('MACTOR') ){
+            actores = 4
+            variables = 5
+        }else{
+            variables = 5
+        }
+        let numberEntities = politicas + eventos + hipotesis + actores + variables
+
+
+        let lastEntities1 = []
+        let lastEntities2 = []
+        let change = false
+        let type = ''
+        for(let jndex = 0; jndex < numberEntities; jndex++ ){
+            
+            if( politicas > 0 ){
+                type = 'politicas'
+                politicas -= 1
+                change =  politicas === 0 
+            }else if( eventos > 0 ){
+                type = 'eventos'
+                eventos -= 1
+                change =  eventos === 0 
+            }else if( hipotesis > 0 ){
+                type = 'hipotesis'
+                hipotesis -= 1
+                change =  hipotesis === 0 
+            }else if( actores > 0 ){
+                type = 'actores'
+                actores -= 1
+                change =  actores === 0 
+            }else if( variables > 0 ){
+                type = 'variables'
+                variables -= 1
+                change =  variables === 0 
+            }
+
+
+            const record = Entity.build( {
+                name:`${type} ${index}-${jndex}`,
+                dependence: Math.random()*10,
+                influence: Math.random()*10,
+                type: type,
+                belongsTo: getRandomElement( lastEntities2 ),
+                ProyectId: proyects[index].id
+            } )
+            const newEntity = await record.save()
+            lastEntities1.push( newEntity.id )
+            entities.push( newEntity )
+            if( change ){
+                lastEntities2 = lastEntities1
+                lastEntities1 = []
+                change = false
+            }
+        }
+    }
+    
+    
+    return { proyects, users, entities }
 
 }
 
 const getRandomElement = (elements) => {
+    if( elements.length === 0 ) return null
     const index = Math.floor(Math.random()*elements.length)
     return elements[index]
 }
 
+const getModules = () => {
+    let modules = ['MIMAC']
+    let otherModules = ['MACTOR', 'MORPHOL', 'SMIC-PRO EXPERT', 'MULTIPOL']
+    let quantity = Math.floor( Math.random()*otherModules.length ) + 1
+    while( quantity > 0 ) {
+        const index = Math.floor( Math.random()*quantity )
+        modules.push( otherModules[ index ] )
+        otherModules = otherModules.filter( (module, j) => j!==index )
+        quantity -= 1
+    }
+    return modules
+}
