@@ -55,7 +55,7 @@ router.post('/login', async (req, res) => {
 
 router.get('/modules', async (req, res) => {
     let modules = [
-        { label:'MIMAC', disabled:true },
+        { label:'MICMAC', disabled:true },
         { label:'MACTOR', disabled:true },
         { label:'SMIC-PRO EXPERT', disabled:true },
         { label:'MORPHOL', disabled:true },
@@ -64,7 +64,7 @@ router.get('/modules', async (req, res) => {
 
     const proyects = await Proyect.findAll()
     proyects.forEach( proyect => {
-        if( proyect.module.includes('MIMAC') ){
+        if( proyect.module.includes('MICMAC') ){
             modules[0].disabled = false
         }
         if( proyect.module.includes('MACTOR') ){
@@ -101,20 +101,6 @@ router.delete('/proyects/:id', await destroy(Proyect))
 router.get('/entities', await getAll(Entity, { include:Proyect }))
 router.get('/entities/:id', await getUnique(Entity, { include:Proyect }))
 router.get('/entities/p/:id', await getUnique(Entity, { include:Proyect }, 'ProyectId'))
-// router.get('/entities/p/:id', async (req, res) => {
-//     const options = {
-//         where:{
-//             ProyectId: req.params.id
-//         },
-//         include: Proyect
-//     }
-//     const result = await Entity.findAll( options )
-//     if( result.length > 0 ){
-//         res.json({message:`Select Record(s) of ProyectId=${req.params.id}`, data:result, error: false})
-//     }else{
-//         res.json({message:`Not Record(s) Selected`, data:[], error: true})
-//     }
-// })
 router.post('/entities', await create(Entity))
 router.put('/entities/:id', await update(Entity))
 router.delete('/entities/:id', await destroy(Entity))

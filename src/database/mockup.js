@@ -140,7 +140,7 @@ const getRandomElement = (elements) => {
 }
 
 const getModules = () => {
-    let modules = ['MIMAC']
+    let modules = ['MICMAC']
     let otherModules = ['MACTOR', 'MORPHOL', 'SMIC-PRO EXPERT', 'MULTIPOL']
     let quantity = Math.floor( Math.random()*otherModules.length ) + 1
     while( quantity > 0 ) {
