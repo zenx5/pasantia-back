@@ -32,6 +32,8 @@ export const generateData = async () => {
         users.push( await record.save() )
     }
     
+    /*ENTITIES*/
+    let entities = []
 
     /*PROYECTS*/
     let proyects = []
@@ -45,92 +47,12 @@ export const generateData = async () => {
                 module: getModules().join(',')
             } )
             proyects.push( await record.save() )
+            const generates = await generateEntities(proyects[ proyects.length - 1 ])
+            entities = [ ...entities, ...generates ]
         }
     }
-
-    /*ENTITIES*/
-    let entities = []
-    for(let index = 0; index < proyects.length; index++ ){
-        let variables = 0
-        let actores = 0
-        let hipotesis = 0
-        let eventos = 0
-        let politicas = 0
-        if( proyects[index].module.includes('MULTIPOL') ){
-            politicas = 9
-            eventos = 8
-            hipotesis = 8
-            actores = 4
-            variables = 5
-        }else if( proyects[index].module.includes('SMIC-PRO EXPERT') ){
-            eventos = 8
-            hipotesis = 8
-            actores = 4
-            variables = 5
-        }else if( proyects[index].module.includes('MORPHOL') ){
-            hipotesis = 8
-            actores = 4
-            variables = 5
-        }else if( proyects[index].module.includes('MACTOR') ){
-            actores = 4
-            variables = 5
-        }else{
-            variables = 5
-        }
-        let numberEntities = politicas + eventos + hipotesis + actores + variables
-
-
-        let lastEntities1 = []
-        let lastEntities2 = []
-        let change = false
-        let type = ''
-        for(let jndex = 0; jndex < numberEntities; jndex++ ){
-            
-            if( politicas > 0 ){
-                type = 'politicas'
-                politicas -= 1
-                change =  politicas === 0 
-            }else if( eventos > 0 ){
-                type = 'eventos'
-                eventos -= 1
-                change =  eventos === 0 
-            }else if( hipotesis > 0 ){
-                type = 'hipotesis'
-                hipotesis -= 1
-                change =  hipotesis === 0 
-            }else if( actores > 0 ){
-                type = 'actores'
-                actores -= 1
-                change =  actores === 0 
-            }else if( variables > 0 ){
-                type = 'variables'
-                variables -= 1
-                change =  variables === 0 
-            }
-
-
-            const record = Entity.build( {
-                name:`${type} ${index}-${jndex}`,
-                dependence: Math.random()*10,
-                influence: Math.random()*10,
-                type: type,
-                belongsTo: getRandomElement( lastEntities2 ),
-                ProyectId: proyects[index].id
-            } )
-            const newEntity = await record.save()
-            lastEntities1.push( newEntity.id )
-            entities.push( newEntity )
-            if( change ){
-                lastEntities2 = lastEntities1
-                lastEntities1 = []
-                change = false
-            }
-        }
-    }
-    
     
     return { proyects, users, entities }
-
 }
 
 const getRandomElement = (elements) => {
@@ -150,4 +72,77 @@ const getModules = () => {
         quantity -= 1
     }
     return modules
+}
+
+const generateEntities = async (proyect) => {
+    let entities = []
+    let variables = 0
+    let actores = 0
+    let hipotesis = 0
+    let eventos = 0
+    let politicas = 0
+    if( proyect.module.includes('MULTIPOL') ){
+        politicas = 10
+    }
+    if( proyect.module.includes('SMIC-PRO EXPERT') ){
+        eventos = 10
+    }
+    if( proyect.module.includes('MORPHOL') ){
+        hipotesis = 10
+    }
+    if( proyect.module.includes('MACTOR') ){
+        actores = 10
+    }
+    if( proyect.module.includes('MICMAC') ){
+        variables = 10
+    }
+
+    let numberEntities = politicas + eventos + hipotesis + actores + variables
+    let lastEntities1 = []
+    let lastEntities2 = []
+    let change = false
+    let type = ''
+    for(let jndex = 0; jndex < numberEntities; jndex++ ){
+        
+        if( politicas > 0 ){
+            type = 'politicas'
+            politicas -= 1
+            change =  politicas === 0 
+        }else if( eventos > 0 ){
+            type = 'eventos'
+            eventos -= 1
+            change =  eventos === 0 
+        }else if( hipotesis > 0 ){
+            type = 'hipotesis'
+            hipotesis -= 1
+            change =  hipotesis === 0 
+        }else if( actores > 0 ){
+            type = 'actores'
+            actores -= 1
+            change =  actores === 0 
+        }else if( variables > 0 ){
+            type = 'variables'
+            variables -= 1
+            change =  variables === 0 
+        }
+
+
+        const record = Entity.build( {
+            name:`${type} ${proyect.id}-${jndex}`,
+            dependence: Math.random()*10,
+            influence: Math.random()*10,
+            type: type,
+            belongsTo: getRandomElement( lastEntities2 ),
+            ProyectId: proyect.id
+        } )
+        const newEntity = await record.save()
+        lastEntities1.push( newEntity.id )
+        entities.push( newEntity )
+        if( change ){
+            lastEntities2 = lastEntities1
+            lastEntities1 = []
+            change = false
+        }
+    }
+    return entities
 }
