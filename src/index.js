@@ -91,27 +91,30 @@ router.put('/users/:id', await update(User))
 router.delete('/users/:id', await destroy(User))
 
 router.get('/proyects', await getAll(Proyect, {include: Entity }))
+router.get('/proyects/user', await getAll(Proyect, {include: Entity }))
 router.get('/proyects/:id', await getUnique(Proyect, {include: Entity }))
+router.get('/proyects/user/:id', await getUnique(Proyect, { include: Entity }, 'UserId'))
 router.post('/proyects', await create(Proyect))
 router.put('/proyects/:id', await update(Proyect))
 router.delete('/proyects/:id', await destroy(Proyect))
 
 router.get('/entities', await getAll(Entity, { include:Proyect }))
 router.get('/entities/:id', await getUnique(Entity, { include:Proyect }))
-router.get('/entities/p/:id', async (req, res) => {
-    const options = {
-        where:{
-            ProyectId: req.params.id
-        },
-        include: Proyect
-    }
-    const result = await Entity.findAll( options )
-    if( result.length > 0 ){
-        res.json({message:`Select Record(s) of ProyectId=${req.params.id}`, data:result, error: false})
-    }else{
-        res.json({message:`Not Record(s) Selected`, data:[], error: true})
-    }
-})
+router.get('/entities/p/:id', await getUnique(Entity, { include:Proyect }, 'ProyectId'))
+// router.get('/entities/p/:id', async (req, res) => {
+//     const options = {
+//         where:{
+//             ProyectId: req.params.id
+//         },
+//         include: Proyect
+//     }
+//     const result = await Entity.findAll( options )
+//     if( result.length > 0 ){
+//         res.json({message:`Select Record(s) of ProyectId=${req.params.id}`, data:result, error: false})
+//     }else{
+//         res.json({message:`Not Record(s) Selected`, data:[], error: true})
+//     }
+// })
 router.post('/entities', await create(Entity))
 router.put('/entities/:id', await update(Entity))
 router.delete('/entities/:id', await destroy(Entity))
