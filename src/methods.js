@@ -7,16 +7,17 @@ const getAll = async (ModelEntity, options = {}) => async (req, res)=>{
     }
 }
 
-const getUnique = async (ModelEntity, options={}) => async (req, res)=>{
+const getUnique = async (ModelEntity, options={}, keyId = 'id') => async (req, res)=>{
     const defaultOptions = {
         where:{
-            id: req.params.id
+            [keyId]: req.params.id,
+            ...options.where
         },
         ...options
     }
     const result = await ModelEntity.findAll( defaultOptions )
     if( result.length > 0 ){
-        res.json({message:`Select Record id=${req.params.id}`, data:result, error: false})
+        res.json({message:`Select Record ${keyId}=${req.params.id}`, data:result, error: false})
     }else{
         res.json({message:`Not Record Selected`, data:[], error: true})
     }
@@ -32,10 +33,10 @@ const create = async (ModelEntity) => async (req, res)=>{
     }
 }
 
-const update = async (ModelEntity, options = {}) => async (req, res)=>{
+const update = async (ModelEntity, options = {}, keyId='id') => async (req, res)=>{
     const defaultOptions = {
         where: {
-          id: req.params.id,
+          [keyId]: req.params.id,
           ...options.where
         },
         ...options
@@ -44,16 +45,16 @@ const update = async (ModelEntity, options = {}) => async (req, res)=>{
     const result = await ModelEntity.update( req.body, defaultOptions )
     const after = await ModelEntity.findAll( defaultOptions )
     if( result ){
-        res.json({message:`Update Record id=${req.params.id}`, data: {before: before, after: after }, error: false})
+        res.json({message:`Update Record ${keyId}=${req.params.id}`, data: {before: before, after: after }, error: false})
     }else{
         res.json({message:'Not Update Record', data: [], error: true})
     }   
 }
 
-const destroy = async (ModelEntity, options = {}) => async (req, res) => {
+const destroy = async (ModelEntity, options = {}, keyId='id') => async (req, res) => {
     const defaultOptions = {
         where: {
-          id: req.params.id,
+          [keyId]: req.params.id,
           ...options.where
         },
         ...options
@@ -61,7 +62,7 @@ const destroy = async (ModelEntity, options = {}) => async (req, res) => {
     const before = await ModelEntity.findAll( defaultOptions )
     const result = await ModelEntity.destroy( defaultOptions );
     if(result){
-        res.json({message:`Delete Record id=${req.params.id}`, data: before, error: false})
+        res.json({message:`Delete Record ${keyId}=${req.params.id}`, data: before, error: false})
     }else{
         res.json({message:`Not Delete Record`, data: [], error: true})
     }   
